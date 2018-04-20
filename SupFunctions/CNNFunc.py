@@ -58,6 +58,19 @@ class preprocessors:
         outputImage = outputImage[(height+hExpand-squareWidth):(height+hExpand), 
                          width//2-halfSquareWidth:width//2+halfSquareWidth]
         return outputImage
+    
+    '''not tested yet'''
+    @staticmethod
+    # increase brightness of image if it is too dark, gamma<1 darker, gamma>1 brighter
+    def adjustDark(inputImage, gamma=1.0):
+        maxValue = np.max(inputImage)
+        if maxValue < 250:
+            invGamma = 1/((2-maxValue/255)*gamma)
+            table = np.array([(i/255)**invGamma*255 for i in range(0, 256)]).astype('uint8')
+            return cv2.LUT(inputImage, table)
+        else:
+            return inputImage
+    
 
 # This paths0 function extract all file paths from the directory        
 def paths0(directory):

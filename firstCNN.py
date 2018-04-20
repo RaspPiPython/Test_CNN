@@ -73,7 +73,7 @@ def normalization(data, maxValue):
     # since the model expect a 4-dimensional array
     # For example, 200 32x32 grayscale images has a shape of (200, 32, 32)
     # This shape needs to be changed to (200, 32, 32, 1)
-    # For channel first backend, this needs to benchanged to (200, 1, 32, 32)
+    # For channel first backend, this needs to be changed to (200, 1, 32, 32)
     shapeLength = len(output.shape)
     if shapeLength == 3:
         output = np.expand_dims(output, axis=3)
