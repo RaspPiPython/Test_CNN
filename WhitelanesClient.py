@@ -33,32 +33,42 @@ def main():
         # Preprocess the frame       
         procImg = preprocessors.removeTop(image, 11/20)
         procImg = preprocessors.gray(procImg)
-        procImg = preprocessors.adjustDark(procImg, 1.2)
+        #procImg2 = preprocessors.adjustDark(procImg)
+        #procImg = preprocessors.extractWhite(procImg2)
         procImg = preprocessors.extractWhite(procImg)
         procImg = preprocessors.carBirdeyeView(procImg, 5/12, 9/5, 160)
         procImg = preprocessors.resizing(procImg)
-        procImg = np.expand_dims(procImg, axis = 0)
-        procImg = np.expand_dims(procImg, axis = 3)
         
-        # Predict result 
-        prediction = model.predict(procImg).argmax()
-        if prediction == 0:
-            result = 'Left'
-        elif prediction == 1:
-            result = 'Right'
-        elif prediction == 2:
-            result = 'Straight'
+        # Choose command based on result
+        if np.mean(procImg)<5: #no street lines detected
+            result ='STP'#stop
         else:
-            result = '<ERROR> Cannot determine whether result is left, right or straight'
+            procImg = np.expand_dims(procImg, axis = 0)
+            procImg = np.expand_dims(procImg, axis = 3)
+        
+            # Predict result 
+            prediction = model.predict(procImg).argmax()
+            if prediction == 0:
+                result = 'LFT'#left
+            elif prediction == 1:
+                result = 'RGT'#right
+            elif prediction == 2:
+                result = 'STR'#straight
+            else:
+                print('<ERROR> Something went wrong, cannot determine whether result was left, right or straight')
+                result = 'STP'#stop
+        ImageClient.sendCommand(result)
         
         # Show result on frame
-        cv2.putText(image, "Label: {}".format(result), (10, 30), 
+        cv2.putText(image, 'Direction: {}'.format(result), (10, 30), 
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)            
         cv2.imshow('Frame', image)
+        #cv2.imshow('Frame', procImg2)
         key = cv2.waitKey(1) & 0xFF
         
         # Exit when q is pressed
         if key == ord('q'):
+            ImageClient.sendCommand('ESC')
             break
     
     #imageData = ImageClient.receiveOneImage()

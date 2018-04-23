@@ -61,11 +61,12 @@ class preprocessors:
     
     '''not tested yet'''
     @staticmethod
-    # increase brightness of image if it is too dark, gamma<1 darker, gamma>1 brighter
-    def adjustDark(inputImage, gamma=1.0):
+    # increase brightness of image if it is too dark
+    def adjustDark(inputImage):
         maxValue = np.max(inputImage)
         if maxValue < 250:
-            invGamma = 1/((2-maxValue/255)*gamma)
+            gamma = (1.5*(255-maxValue)/255)+1
+            invGamma = 1/gamma
             table = np.array([(i/255)**invGamma*255 for i in range(0, 256)]).astype('uint8')
             return cv2.LUT(inputImage, table)
         else:

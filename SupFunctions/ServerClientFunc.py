@@ -50,6 +50,12 @@ class PiImageClient:
             print('Successfully received frame {}'.format(self.counter))                
         return imageData
     
+    def sendCommand(self, command):
+        if len(command) != 3:
+            print('<WARNING> Length of command string is different from 3')
+        self.s.send(command.encode())
+        print('Command {} sent'.format(command))
+        
     
 class PiImageServer:
     def __init__(self):
@@ -94,3 +100,9 @@ class PiImageServer:
         lenData = pickle.dumps(frameDataLen)        
         self.conn.send(lenData)        
         self.conn.send(frameData)
+        
+    def recvCommand(self):
+        commandData = self.conn.recv(3)
+        command = commandData.decode()
+        return command
+        
