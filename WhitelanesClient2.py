@@ -23,12 +23,14 @@ def main():
     ImageClient.connectClient('192.168.1.89', 50009)
     print('<INFO> Connection established, preparing to receive frames...')
     timeStart = time.time()
+    ImageClient.sendCommand('SRT')
     
     # Receiving and processing frames
     while(1):
         # Receive and unload a frame
         imageData = ImageClient.receiveFrame()
-        image = pickle.loads(imageData)
+        compressedImg = pickle.loads(imageData)
+        image = cv2.imdecode(compressedImg, cv2.IMREAD_COLOR)
         
         # Preprocess the frame       
         procImg = preprocessors.removeTop(image, 11/20)
@@ -62,20 +64,20 @@ def main():
         #ImageClient.sendCommand(result)
         
         # Show result on frame
-        #cv2.putText(image, 'Direction: {}'.format(result), (10, 30), 
-        #            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2) 
-        cv2.putText(procImg2, 'Direction: {}'.format(result), (10, 30), 
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)            
-        cv2.imshow('Frame', procImg2)
+        cv2.putText(image, 'Direction: {}'.format(result), (10, 30), 
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2) 
+        cv2.imshow('Frame', image)
+        #cv2.putText(procImg2, 'Direction: {}'.format(result), (10, 30), 
+        #            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)       
         #cv2.imshow('Frame', procImg2)
         key = cv2.waitKey(1) & 0xFF
         #cv2.waitKey(1)
         
         # Exit when q is pressed
-        if key == ord('q'):            
+        if key == ord('q'): 
             break
-        #else:
-        #    ImageClient.sendCommand(result)
+        else:
+            ImageClient.sendCommand(result)
             
         '''if key != 113: #ord(q)
             ImageClient.sendCommand(result)
@@ -83,7 +85,7 @@ def main():
             ImageClient.sendCommand('BYE')
             break'''
         
-        ImageClient.sendCommand(result)
+        #ImageClient.sendCommand(result)
     
     #imageData = ImageClient.receiveOneImage()
     #image = pickle.loads(imageData)

@@ -9,6 +9,7 @@ import numpy as np
 import cv2
 import argparse
 import time
+from SupFunctions import CNNFunc
 
 class preProcessors:
     def __init__(self, imageArray):        
@@ -45,6 +46,29 @@ class preProcessors:
         return cropmap
         
 def main():
+    filePaths = CNNFunc.paths0(r'Data\straight2')
+    print (filePaths)
+    preprocessors = CNNFunc.preprocessors
+    i=60
+    for path in filePaths:
+    #    image = cv2.imread(r'Data\right2\right{}.jpg'.format(i))
+        image = cv2.imread(path)        
+        i+=1
+        procImg = preprocessors.removeTop(image, 11/20)        
+        procImg = preprocessors.gray(procImg)
+        procImg = preprocessors.extractWhite(procImg)
+        procImg2 = preprocessors.carBirdeyeView(procImg, 5/12, 9/5, 160)        
+        cv2.imwrite(r'Output2\straight\{:03}.jpg'.format(i), procImg2)
+        
+        #cv2.imshow('img', image)
+        #cv2.waitKey(0)
+        #cv2.imshow('img', procImg2)
+        #cv2.waitKey(0)
+    #    processor = preProcessors(image)
+    #    cropmap = processor.processor1(11/20, 80)
+    #    cv2.imwrite('Output2\right\{:03}.jpg'.format(i), cropmap)
+
+def main1():
     #ap = argparse.ArgumentParser()
     #ap.add_argument("-d", "--data", required=True, help="Path to dataset")
     #ap.add_argument("-o", "--output", required=True, help="Path to processed dataset")

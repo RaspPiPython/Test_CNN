@@ -32,13 +32,17 @@ class preprocessors:
     
     @staticmethod
     #input is grayscale image, output is binary image
+    #def extractWhite(inputImage): 
     def extractWhite(inputImage, threshold = (200, 255)): 
         #extract white parts
+        #upperEnd = np.max(inputImage)
+        #lowerEnd = upperEnd * 9 // 10
+        #threshold = (lowerEnd, upperEnd)
         ret, outputImage = cv2.threshold(inputImage, threshold[0],  
                                          threshold[1], cv2.THRESH_BINARY)
         # closing-opening to reduce noise
-        kernel = np.ones((5,5),np.uint8) 
-        outputImage = cv2.morphologyEx(outputImage, cv2.MORPH_CLOSE, kernel)
+        #kernel = np.ones((5,5),np.uint8) 
+        #outputImage = cv2.morphologyEx(outputImage, cv2.MORPH_CLOSE, kernel)
         #outputImage = cv2.morphologyEx(outputImage, cv2.MORPH_OPEN, kernel)
         return outputImage
     
@@ -99,7 +103,7 @@ def paths(directory):
     return filePaths        
 
 # Attach labels on the images
-def loadProccessedLabels(filePaths): 
+def loadProccessedLabels(filePaths): # exclusive for model that classify white lanes
     (images, labels) = ([], [])
     for filePath in filePaths:
         image = cv2.imread(filePath, 0) #read img as gray scale img
@@ -108,3 +112,32 @@ def loadProccessedLabels(filePaths):
         images.append(image)
         labels.append(label)
     return (np.array(images), np.array(labels))
+
+def loadLabels(filePaths):
+    (images, labels) = ([], [])
+    for filePath in filePaths:
+        image = cv2.imread(filePath)
+        label = filePath.split(os.path.sep)[-2]
+        images.append(image)
+        labels.append(label)
+    return (np.array(images), np.array(labels))
+
+def normalization(data, maxValue):
+    output = data.astype('float') / 255.0 #should be 255.0 for images
+    return output
+
+# Add dimension if the data consists of gray scale images
+def adjustShape(data): 
+    # If data consists of grayscale images, add 1 dimension (depth = 1) 
+    # since the model expect a 4-dimensional array
+    # For example, 200 32x32 grayscale images has a shape of (200, 32, 32)
+    # This shape needs to be changed to (200, 32, 32, 1)
+    # For channel first backend, this needs to be changed to (200, 1, 32, 32
+    shapeLength = len(data.shape)
+    if shapeLength == 3:
+        output = np.expand_dims(data, axis=3)
+    elif shapeLength ==4:
+        pass
+    else:
+        print('<WARNING> The shape of the input is invalid')
+    return output

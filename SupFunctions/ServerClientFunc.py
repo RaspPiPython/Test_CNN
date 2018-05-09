@@ -18,6 +18,11 @@ class PiImageClient:
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.connect((serverIP, serverPort))
         
+    def connectClientNODELAY(self, serverIP, serverPort):
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        self.s.connect((serverIP, serverPort))
+        
     def closeClient(self):
         self.s.close()
         
@@ -33,13 +38,28 @@ class PiImageClient:
             #    print('Received: {} of {}'.format(len(imageData), length))
         return imageData
     
-    def receiveFrame(self):        
+    def receiveFrame0(self):        
         imageData = b''
-        lenData = self.s.recv(8) #8 for len, 13 for str command
+        lenData = self.s.recv(8) 
         length = pickle.loads(lenData)
         print('Data length is:', length)
-        #length = 921764 # for 640x480 images
-        #length = 230563 # for 320x240 images
+        '''length = 921764 # for 640x480 images
+        length = 230563 # for 320x240 images'''
+        while len(imageData) < length:
+            toRead = length-len(imageData)
+            imageData += self.s.recv(4096 if toRead>4096 else toRead)
+            #if len(imageData)%200000 <= 4096:
+            #    print('Received: {} of {}'.format(len(imageData), length))
+        self.counter += 1
+        if len(imageData) == length: 
+            print('Successfully received frame {}'.format(self.counter))                
+        return imageData
+    
+    def receiveFrame(self):        
+        imageData = b''
+        lenString = self.s.recv(6) 
+        length = int(lenString)
+        print('Data length is:', length)
         while len(imageData) < length:
             toRead = length-len(imageData)
             imageData += self.s.recv(4096 if toRead>4096 else toRead)
@@ -51,10 +71,18 @@ class PiImageClient:
         return imageData
     
     def sendCommand(self, command):
-        if len(command) != 3:
-            print('<WARNING> Length of command string is different from 3')
+        #if len(command) != 3:
+        #    print('<WARNING> Length of command string is different from 3')
+        
         self.s.send(command.encode())
+        #commandData = pickle.dumps(command)
+        #self.s.send(commandData)
         print('Command {} sent'.format(command))
+        
+    def receiveCommand(self):
+        commandData = self.s.recv(3)
+        command = commandData.decode()
+        return command
         
     
 class PiImageServer:
