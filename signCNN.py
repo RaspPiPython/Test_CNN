@@ -7,6 +7,7 @@ Created on Tue May  8 11:19:27 2018
 
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
@@ -23,6 +24,51 @@ from keras import backend as K
 from keras import regularizers
 from SupFunctions import CNNFunc
 
+# The identification performs reasonably well with this model setup
+'''absolutely do not change this class signNet0'''
+class signNet0: 
+    @staticmethod
+    def build(width, height, depth, classes):
+        # initialze the model with "channel last" input
+        model = Sequential()
+        inputShape = (height, width, depth)
+        chanDim = -1 # for "channel last" data 
+        #chanDim = 1 # for "channel first" data 
+        
+        # if we are using "channel first", update the shape
+        if K.image_data_format() == 'channels_first':
+            inputShape = (depth, height, width)
+            
+        # define layers
+        model.add(Conv2D(40, (3, 3), padding='same', input_shape=inputShape
+                         #,kernel_regularizer=regularizers.l2(0.01)
+                         #,activity_regularizer=regularizers.l1(0.01)
+                         ))
+        model.add(Activation('relu'))
+        model.add(BatchNormalization(axis=chanDim))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+        #model.add(Dropout(0.75))
+        
+        model.add(Conv2D(80, (3, 3), padding='same'
+                         #,kernel_regularizer=regularizers.l2(0.01)
+                         #,activity_regularizer=regularizers.l1(0.01)
+                         ))
+        model.add(Activation('relu'))
+        model.add(BatchNormalization(axis=chanDim))
+        #model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(Dropout(0.75))
+        
+        model.add(Flatten())
+        model.add(Dense(400))
+        model.add(Activation('relu'))
+        model.add(BatchNormalization())
+        model.add(Dropout(0.25))
+        
+        model.add(Dense(classes))
+        model.add(Activation('softmax'))
+        
+        return model
+
 class signNet:
     @staticmethod
     def build(width, height, depth, classes):
@@ -37,22 +83,26 @@ class signNet:
             inputShape = (depth, height, width)
             
         # define layers
-        model.add(Conv2D(20, (3, 3), padding='same', input_shape=inputShape
-                         ,kernel_regularizer=regularizers.l2(0.01)
-                         #,activity_regularizer=regularizers.l1(0.01)
-                         ))
-        model.add(Activation('relu'))
-        model.add(BatchNormalization(axis=chanDim))
-        model.add(Conv2D(20, (3, 3), padding='same'
-                         ,kernel_regularizer=regularizers.l2(0.01)
+        model.add(Conv2D(40, (3, 3), padding='same', input_shape=inputShape
+                         #,kernel_regularizer=regularizers.l2(0.01)
                          #,activity_regularizer=regularizers.l1(0.01)
                          ))
         model.add(Activation('relu'))
         model.add(BatchNormalization(axis=chanDim))
         model.add(MaxPooling2D(pool_size=(2, 2)))
+        #model.add(Dropout(0.75))
+        
+        model.add(Conv2D(80, (3, 3), padding='same'
+                         #,kernel_regularizer=regularizers.l2(0.01)
+                         #,activity_regularizer=regularizers.l1(0.01)
+                         ))
+        model.add(Activation('relu'))
+        model.add(BatchNormalization(axis=chanDim))
+        #model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(Dropout(0.75))
         
         model.add(Flatten())
-        model.add(Dense(200))
+        model.add(Dense(400))
         model.add(Activation('relu'))
         model.add(BatchNormalization())
         model.add(Dropout(0.25))
@@ -86,12 +136,13 @@ def main():
     # initialize model parameters
     print('<INFO> Compiling model...')
     epochNum = 100
-    learningRate = 0.05
+    learningRate = 0.01
     #decayRate = learningRate/epochNum
     #learningMomentum = 0.95
     storingLocation = 'trafficSign0.hdf5'
     #opt = SGD(lr=learningRate, decay = decayRate, momentum = learningMomentum, nesterov = True)
     opt = SGD(lr = learningRate)
+    #model = signNet.build(width = 20, height = 20, depth = 3, classes = 4)
     model = signNet.build(width = 20, height = 20, depth = 3, classes = 4)
     model.compile(loss="categorical_crossentropy", optimizer=opt,
                   metrics=["accuracy"])
@@ -104,7 +155,7 @@ def main():
     print('<INFO> Evaluating network...')
     predictions = model.predict(testX, batch_size=32)
     print(classification_report(testY.argmax(axis=1), predictions.argmax(axis=1),
-                                target_names=["left", "right", "straight"]))
+                                target_names=['light', 'others', 'speed', 'stop']))
     
     print('<INFO> Saving network...')
     model.save(storingLocation)
@@ -122,6 +173,20 @@ def main():
     plt.legend()
     plt.show()
         
+    #model = load_model('trafficSign0.hdf5')
+    filePaths = CNNFunc.paths('F:\FH_Frankfurt\Python Adrian\Working Codes\Test_CNN\CroppedSigns')
+    i = 0
+    timeBegin = time.time()
+    (data, labels) = CNNFunc.loadLabels(filePaths)
+    labels = LabelBinarizer().fit_transform(labels)
+    prediction = model.predict(data)
+    for filePath in filePaths:        
+        print(i, 'Prediction is:', prediction[i], 'Ground truth is:', labels[i]) 
+        i += 1
+    timeElapsed = time.time() - timeBegin
+    processTime = timeElapsed / len(filePaths)
+    print('The program took {} s to finish, so the processing time for each image is {} s.'.format(
+            timeElapsed, processTime))
     print('Program completed')
     
     

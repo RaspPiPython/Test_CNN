@@ -6,13 +6,38 @@ Created on Wed Apr 18 14:13:23 2018
 """
 
 from keras.models import load_model
+from sklearn.preprocessing import LabelBinarizer
 import numpy as np
 import cv2
+import time
 #from SupFunctions import MiscFunc
 from SupFunctions import CNNFunc
 #from SupFunctions.CNNFunc import preprocessors
 
+def main3():
+    model = load_model('trafficSign0.hdf5')
+    image = cv2.imread(r'F:\FH_Frankfurt\Python Adrian\Working Codes\Test_CNN\CroppedSigns\speedSign\Pasted Layer #26.png')
+    image = np.expand_dims(image, axis = 0)
+    prediction = model.predict(image)
+    print(prediction)
+
 def main():
+    model = load_model('trafficSign0.hdf5')
+    filePaths = CNNFunc.paths('F:\FH_Frankfurt\Python Adrian\Working Codes\Test_CNN\CroppedSigns')
+    i = 0
+    timeBegin = time.time()
+    (data, labels) = CNNFunc.loadLabels(filePaths)
+    labels = LabelBinarizer().fit_transform(labels)
+    prediction = model.predict(data)
+    for filePath in filePaths:        
+        print(i, 'Prediction is:', prediction[i], 'Ground truth is:', labels[i]) 
+        i += 1
+    timeElapsed = time.time() - timeBegin
+    processTime = timeElapsed / len(filePaths)
+    print('The program took {} s to finish, so the processing time for each image is {} s.'.format(
+            timeElapsed, processTime))
+
+def main2():
     image = cv2.imread(r'F:\FH_Frankfurt\Python Adrian\Working Codes\Test_CNN\Data\right\020.jpg')
     preprocessors = CNNFunc.preprocessors
     output = preprocessors.removeTop(image, 11/20)

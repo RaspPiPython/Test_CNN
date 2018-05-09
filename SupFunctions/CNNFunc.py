@@ -123,7 +123,7 @@ def loadLabels(filePaths):
     return (np.array(images), np.array(labels))
 
 def normalization(data, maxValue):
-    output = data.astype('float') / 255.0 #should be 255.0 for images
+    output = data.astype('float') / maxValue #should be 255.0 for images
     return output
 
 # Add dimension if the data consists of gray scale images
