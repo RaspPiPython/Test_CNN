@@ -150,7 +150,7 @@ def main():
     learningRate = 0.05
     decayRate = learningRate/epochNum
     learningMomentum = 0.95
-    storingLocation = 'streetlanes0.hdf5'
+    storingLocation = 'streetlanes1.hdf5'
     opt = SGD(lr=learningRate, decay = decayRate, momentum = learningMomentum, nesterov = True)
     model = ShallowNet.build(width=32, height=32, depth=1, classes=3)
     model.compile(loss="categorical_crossentropy", optimizer=opt,
