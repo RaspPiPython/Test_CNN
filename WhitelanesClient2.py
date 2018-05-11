@@ -64,12 +64,12 @@ def main():
         #ImageClient.sendCommand(result)
         
         # Show result on frame
-        cv2.putText(image, 'Direction: {}'.format(result), (10, 30), 
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2) 
-        cv2.imshow('Frame', image)
-        #cv2.putText(procImg2, 'Direction: {}'.format(result), (10, 30), 
-        #            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)       
-        #cv2.imshow('Frame', procImg2)
+        #cv2.putText(image, 'Direction: {}'.format(result), (10, 30), 
+        #            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2) 
+        #cv2.imshow('Frame', image)
+        cv2.putText(procImg2, 'Direction: {}'.format(result), (10, 30), 
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)       
+        cv2.imshow('Frame', procImg2)
         key = cv2.waitKey(1) & 0xFF
         #cv2.waitKey(1)
         
