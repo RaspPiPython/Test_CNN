@@ -1,0 +1,22 @@
+<application>
+  <component name="PyTestFrameworkService">
+    <option name="SDK_TO_PYTEST">
+      <map>
+        <entry key="C:\Users\tranl\AppData\Local\Temp\lane_segmentation_test.py\venv\Scripts\python.exe" value="false" />
+        <entry key="F:\FH_Frankfurt\Python Adrian\Working Codes\Pycharm\Scripts\python.exe" value="false" />
+      </map>
+    </option>
+    <option name="SDK_TO_NOSETEST">
+      <map>
+        <entry key="C:\Users\tranl\AppData\Local\Temp\lane_segmentation_test.py\venv\Scripts\python.exe" value="false" />
+        <entry key="F:\FH_Frankfurt\Python Adrian\Working Codes\Pycharm\Scripts\python.exe" value="false" />
+      </map>
+    </option>
+    <option name="SDK_TO_TRIALTEST">
+      <map>
+        <entry key="C:\Users\tranl\AppData\Local\Temp\lane_segmentation_test.py\venv\Scripts\python.exe" value="false" />
+        <entry key="F:\FH_Frankfurt\Python Adrian\Working Codes\Pycharm\Scripts\python.exe" value="false" />
+      </map>
+    </option>
+  </component>
+</application>
